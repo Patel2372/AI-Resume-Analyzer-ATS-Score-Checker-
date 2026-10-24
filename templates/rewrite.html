@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}AI Resume Rewrite{% endblock %}
+{% block content %}<div class="row g-4"><div class="col-lg-6"><div class="card shadow-sm border-0"><div class="card-body"><h4>AI Resume Rewriter</h4><p class="text-muted">Improve one sentence or bullet point at a time.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-dark">Improve Text</button></form></div></div></div>{% if improved %}<div class="col-lg-6"><div class="card shadow-sm border-0"><div class="card-body"><h5>Improved Version</h5><div class="result-box">{{ improved }}</div><h6 class="mt-4">Original</h6><div class="result-box muted">{{ original }}</div></div></div></div>{% endif %}</div>{% endblock %}

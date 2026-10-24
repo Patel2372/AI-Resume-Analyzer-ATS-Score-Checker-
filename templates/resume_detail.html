@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}{{ resume.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2>{{ resume.title }}</h2>
+    <p class="text-muted mb-0">{{ resume.file.name }}</p>
+  </div>
+  <a class="btn btn-outline-dark" href="{% url 'create_version' resume.id %}">Add Version</a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5>Parsed Candidate</h5>
+        <p><strong>Name:</strong> {{ resume.parsed_data.name|default:'Not detected' }}</p>
+        <p><strong>Email:</strong> {{ resume.parsed_data.email|default:'Not detected' }}</p>
+        <p><strong>Phone:</strong> {{ resume.parsed_data.phone|default:'Not detected' }}</p>
+        <p><strong>Location:</strong> {{ resume.parsed_data.location|default:'Not detected' }}</p>
+        {% if resume.parsed_data.linkedin %}<p><strong>LinkedIn:</strong> <a href="{{ resume.parsed_data.linkedin }}" target="_blank" rel="noopener">{{ resume.parsed_data.linkedin }}</a></p>{% endif %}
+        {% if resume.parsed_data.github %}<p><strong>GitHub:</strong> <a href="{{ resume.parsed_data.github }}" target="_blank" rel="noopener">{{ resume.parsed_data.github }}</a></p>{% endif %}
+        {% if resume.parsed_data.headline %}<p><strong>Headline:</strong> {{ resume.parsed_data.headline }}</p>{% endif %}
+
+        <h6 class="mt-4">Technical Skills</h6>
+        <div class="mb-2">
+          {% for s in resume.parsed_data.technical_skills %}
+            <span class="tag">{{ s }}</span>
+          {% empty %}
+            <span class="text-muted">Not detected</span>
+          {% endfor %}
+        </div>
+
+        <h6 class="mt-4">ATS Detected Skills</h6>
+        <div>
+          {% for s in resume.parsed_data.skills %}
+            <span class="tag">{{ s }}</span>
+          {% empty %}
+            <span class="text-muted">Not detected</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mt-4">
+      <div class="card-body">
+        <h5>Resume Sections Detected</h5>
+        <p class="small text-muted mb-2">{{ resume.parsed_data.word_count }} words detected</p>
+        <div>
+          {% for s in resume.parsed_data.sections_detected %}
+            <span class="tag tag-success">{{ s|title }}</span>
+          {% empty %}
+            <span class="text-muted">No sections detected</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5>Choose Job to Analyze</h5>
+        {% for job in user.job_descriptions.all %}
+          <div class="list-row">
+            <div>
+              <strong>{{ job.title }}</strong>
+              {% if job.company %}<div class="small text-muted">{{ job.company }}</div>{% endif %}
+            </div>
+            <a class="btn btn-sm btn-dark" href="{% url 'run_analysis' resume.id job.id %}">Analyze</a>
+          </div>
+        {% empty %}
+          <p class="text-muted">Create a job description first.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h5>Profile / Summary</h5>
+            {% if resume.parsed_data.sections.summary %}
+              <p class="mb-0">{{ resume.parsed_data.sections.summary }}</p>
+            {% else %}
+              <p class="text-muted mb-0">Not detected.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h5>Education</h5>
+            <ul class="mb-0">
+              {% for x in resume.parsed_data.education_items %}
+                <li>{{ x }}</li>
+              {% empty %}
+                <li>Not detected</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h5>Work Experience</h5>
+            {% for x in resume.parsed_data.experience_items %}
+              <div class="mb-3 pb-3 border-bottom">
+                <strong>Experience {{ forloop.counter }}</strong>
+                <div class="mt-1">{{ x }}</div>
+              </div>
+            {% empty %}
+              <p class="text-muted mb-0">Not detected</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h5>Projects &amp; Hackathons</h5>
+            {% for x in resume.parsed_data.all_projects %}
+              <div class="mb-3 pb-3 border-bottom">
+                <strong>Project {{ forloop.counter }}</strong>
+                <div class="mt-1">{{ x }}</div>
+              </div>
+            {% empty %}
+              <p class="text-muted mb-0">Not detected</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h5>Certificates</h5>
+            <ul class="mb-0">
+              {% for x in resume.parsed_data.certifications %}
+                <li>{{ x }}</li>
+              {% empty %}
+                <li>Not detected</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <h5>Tools</h5>
+            <div class="mb-3">
+              {% for x in resume.parsed_data.tools %}
+                <span class="tag">{{ x }}</span>
+              {% empty %}
+                <span class="text-muted">Not detected</span>
+              {% endfor %}
+            </div>
+            <h6>Soft Skills</h6>
+            {% for x in resume.parsed_data.soft_skills %}
+              <span class="tag">{{ x }}</span>
+            {% empty %}
+              <span class="text-muted">Not detected</span>
+            {% endfor %}
+            <h6 class="mt-3">Languages</h6>
+            {% for x in resume.parsed_data.languages %}
+              <span class="tag">{{ x }}</span>
+            {% empty %}
+              <span class="text-muted">Not detected</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mt-4">
+  <div class="card-body">
+    <h5>Resume Versions</h5>
+    {% for v in versions %}
+      <div class="list-row">
+        <span>{{ v.version_name }}</span>
+        <span class="small text-muted">{{ v.note }}</span>
+      </div>
+    {% empty %}
+      <p class="text-muted">No versions.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
